@@ -6,7 +6,7 @@ import time
 #Used to draw the grid on the screen
 def draw_grid (screen):
     linecolor = (255,255,255)
-    linewidth = 1
+    linewidth = 2
     for i in range(10):
         pygame.draw.line(screen, linecolor, 
             (20 + (screen.get_width() - 40)/9 * i,20), 
@@ -48,7 +48,6 @@ def move_list(pmove, spots):
 
 #given a tictactoe grid return true if the player has got a win
 def check_win (section,player):
-    print(section)
     if(((player == section[0]) and 
         (section[0] == section[1]) and (section[0] == section[2])) or
     ((player == section[3]) and
@@ -71,8 +70,6 @@ def check_win (section,player):
 #given the move and a list of each spots check if the move caused a section to
 #win
 def check_win_sect (section,spots, total_sections, player):
-    print("check win")
-
     if(check_win(spots[section], player)):
         for i in range(9):
             spots[section][i] = player
@@ -165,6 +162,11 @@ while not done:
             pygame.draw.rect(screen,(255,255,152),
                 pygame.Rect(30 + (screen.get_width() - 40)/9 * pos[0],
                 30 + (screen.get_height() - 40)/9 * pos[1],
+                (screen.get_width() - 40)/12,(screen.get_height() - 40)/12))
+        else:
+            pygame.draw.rect(screen,(55,55,55),
+                pygame.Rect(30 + (screen.get_width() - 40)/9 * i[0],
+                30 + (screen.get_height() - 40)/9 * i[1],
                 (screen.get_width() - 40)/12,(screen.get_height() - 40)/12))
     draw_x_o(screen,spots)
     # Copy image to screen:

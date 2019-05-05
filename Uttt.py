@@ -1,0 +1,177 @@
+
+import pygame
+import math
+import time
+
+#Used to draw the grid on the screen
+def draw_grid (screen):
+    linecolor = (255,255,255)
+    linewidth = 1
+    for i in range(10):
+        pygame.draw.line(screen, linecolor, 
+            (20 + (screen.get_width() - 40)/9 * i,20), 
+            (20 + (screen.get_width() -40)/9 * i,
+                (screen.get_height() - 20)),linewidth)
+        pygame.draw.line(screen, linecolor, 
+            (20, 20 + (screen.get_height() - 40)/9 * i), 
+            ((screen.get_width() -20),
+                (20 + (screen.get_height() - 40)/9 *i)),linewidth)
+    linecolor = (255,0,0)
+    linewidth = 6
+    for i in range(0, 10, 3):
+        pygame.draw.line(screen, linecolor, 
+            (20 + (screen.get_width() - 40)/9 * i,20), 
+            (20 + (screen.get_width() -40)/9 * i,
+                (screen.get_height() - 20)),linewidth)
+        pygame.draw.line(screen, linecolor, 
+            (20, 20 + (screen.get_height() - 40)/9 * i), 
+            ((screen.get_width() -20),
+                (20 + (screen.get_height() - 40)/9 *i)),linewidth)
+
+#given the move and a list of each spots state return the move list 
+def move_list(pmove, spots):
+    possible_moves = []
+    sect = int(pmove[0]%3 + (pmove[1]%3)*3)
+    for i in range(9):
+            if spots[sect][i] == 0:
+                x = int(i%3 + (sect%3)*3)
+                y = int (math.floor(sect/3)*3 + i/3)
+                possible_moves.append([x,y])
+    if len(possible_moves) == 0:
+        for i in range(9):
+            for j in range(9):
+                if spots[i][j] == 0:
+                    x = int(j%3 + (i%3)*3)
+                    y = int (math.floor(i/3)*3 + j/3)
+                    possible_moves.append([x,y])
+    return possible_moves
+
+#given a tictactoe grid return true if the player has got a win
+def check_win (section,player):
+    print(section)
+    if(((player == section[0]) and 
+        (section[0] == section[1]) and (section[0] == section[2])) or
+    ((player == section[3]) and
+        (section[3] == section[4]) and (section[3] == section[5])) or
+    ((player == section[6]) and
+        (section[6] == section[7]) and (section[6] == section[8])) or
+    ((player == section[0]) and
+        (section[0] == section[3]) and (section[0] == section[6])) or
+    ((player == section[1]) and
+        (section[1] == section[4]) and (section[1] == section[7])) or
+    ((player == section[2]) and
+        (section[2] == section[5]) and (section[2] == section[8])) or
+    ((player == section[0]) and
+        (section[0] == section[4]) and (section[0] == section[8])) or
+    ((player == section[6]) and
+        (section[6] == section[4]) and (section[6] == section[2])) ):
+        return True
+    return False
+
+#given the move and a list of each spots check if the move caused a section to
+#win
+def check_win_sect (section,spots, total_sections, player):
+    print("check win")
+
+    if(check_win(spots[section], player)):
+        for i in range(9):
+            spots[section][i] = player
+        total_sections[section] = player
+        if check_win(total_sections, player):
+            print("player {:d} Wins".format(player))
+            return True
+    return False
+
+#draws the x's and o's that were placed 
+def draw_x_o (screen,spots):
+    player_x = pygame.transform.scale(pygame.image.load("X.png").convert(),
+        (int((screen.get_width() - 40)/12),int((screen.get_height() - 40)/12)))
+    player_o = pygame.transform.scale(pygame.image.load("O.png").convert(),
+        (int((screen.get_width() - 40)/12),int((screen.get_height() - 40)/12)))
+    for i in range(9):
+        for j in range(9):
+            x = int(j%3 + (i%3)*3)
+            y = int(math.floor(i/3)*3 + j/3)
+            if spots[i][j] == 1:
+                screen.blit(player_x, [30 + (screen.get_width() - 40)/9 *x,
+                    30 + (screen.get_height() - 40)/9 *y ])
+            if spots[i][j] == 2:
+                screen.blit(player_o, [30 + (screen.get_width() - 40)/9 *x,
+                    30 + (screen.get_height() - 40)/9 *y])
+
+
+# Define some colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Call this function so the Pygame library can initialize itself
+pygame.init()
+prev_move = [-1,-1]
+spots = [[0 for x in range(9)] for x in range(9)]
+total_sections = [0 for x in range(9)]
+open_pos = []
+for i in range(9):
+    for x in range(9):
+        open_pos.append([i,x])
+# Create an 800x600 sized screen
+screen = pygame.display.set_mode([800, 600])
+
+# This sets the name of the window
+pygame.display.set_caption('Ultimate tic-tac-toe')
+ 
+clock = pygame.time.Clock()
+ 
+# Before the loop, load the sounds:
+# click_sound = pygame.mixer.Sound("01. La La Land.ogg")
+ 
+# Set positions of graphics
+#background_position = [0, 0]
+ 
+ 
+done = False
+pos = [0,0]
+#x is 1 o is 2
+player = 1;
+while not done:
+    mouse_position = pygame.mouse.get_pos()
+    pos[0] = math.floor((mouse_position[0] - 20)/((screen.get_width() - 40)/9))
+    pos[1] = math.floor((mouse_position[1] - 20)/((screen.get_height() - 40)/9))
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            done = True
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            #check if the mouse click was on a valid spot
+            #if it was place players mark and check for a win
+            for i in open_pos:
+                if (pos[0] == i[0] and pos[1] == i[1] ):
+                    x = int(pos[0]/3 + math.floor(pos[1]/3)*3)
+                    y = int(pos[0]%3 + (pos[1]%3)*3)
+                    spots[x][y] = player
+
+                    #check if the move caused the player to win a section 
+                    #if the move won the whole game done will become true
+                    done =  check_win_sect(x,spots,total_sections,player)
+                    open_pos = move_list(pos,spots)
+                    player = 2 if player == 1 else 1
+
+    #fill the background color to black so that it will 
+    #refresh what is on the screen
+    screen.fill(BLACK)
+    draw_grid(screen)
+   
+    #indicate where you will be putting your move (yellow mark on screen)
+    for i in open_pos:
+        if (pos[0] == i[0] and pos[1] == i[1] ):
+            pygame.draw.rect(screen,(255,255,152),
+                pygame.Rect(30 + (screen.get_width() - 40)/9 * pos[0],
+                30 + (screen.get_height() - 40)/9 * pos[1],
+                (screen.get_width() - 40)/12,(screen.get_height() - 40)/12))
+    draw_x_o(screen,spots)
+    # Copy image to screen:
+    #screen.blit(player_image, [x, y])
+   
+    pygame.display.flip()
+ 
+    clock.tick(60)
+ 
+pygame.quit()

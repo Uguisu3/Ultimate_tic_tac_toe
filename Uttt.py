@@ -1,7 +1,7 @@
 
 import pygame
 import math
-import time
+import random
 
 #Used to draw the grid on the screen
 def draw_grid (screen):
@@ -96,84 +96,118 @@ def draw_x_o (screen,spots):
                 screen.blit(player_o, [30 + (screen.get_width() - 40)/9 *x,
                     30 + (screen.get_height() - 40)/9 *y])
 
+def main(mode):
+    # Define some colors
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
 
-# Define some colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+    # Call this function so the Pygame library can initialize itself
+    pygame.init()
+    prev_move = [-1,-1]
+    spots = [[0 for x in range(9)] for x in range(9)]
+    total_sections = [0 for x in range(9)]
+    open_pos = []
+    for i in range(9):
+        for x in range(9):
+            open_pos.append([i,x])
+    # Create an 800x600 sized screen
+    screen = pygame.display.set_mode([800, 600])
 
-# Call this function so the Pygame library can initialize itself
-pygame.init()
-prev_move = [-1,-1]
-spots = [[0 for x in range(9)] for x in range(9)]
-total_sections = [0 for x in range(9)]
-open_pos = []
-for i in range(9):
-    for x in range(9):
-        open_pos.append([i,x])
-# Create an 800x600 sized screen
-screen = pygame.display.set_mode([800, 600])
-
-# This sets the name of the window
-pygame.display.set_caption('Ultimate tic-tac-toe')
- 
-clock = pygame.time.Clock()
- 
-# Before the loop, load the sounds:
-# click_sound = pygame.mixer.Sound("01. La La Land.ogg")
- 
-# Set positions of graphics
-#background_position = [0, 0]
- 
- 
-done = False
-pos = [0,0]
-#x is 1 o is 2
-player = 1;
-while not done:
-    mouse_position = pygame.mouse.get_pos()
-    pos[0] = math.floor((mouse_position[0] - 20)/((screen.get_width() - 40)/9))
-    pos[1] = math.floor((mouse_position[1] - 20)/((screen.get_height() - 40)/9))
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            #check if the mouse click was on a valid spot
-            #if it was place players mark and check for a win
-            for i in open_pos:
-                if (pos[0] == i[0] and pos[1] == i[1] ):
-                    x = int(pos[0]/3 + math.floor(pos[1]/3)*3)
-                    y = int(pos[0]%3 + (pos[1]%3)*3)
-                    spots[x][y] = player
-
-                    #check if the move caused the player to win a section 
-                    #if the move won the whole game done will become true
-                    done =  check_win_sect(x,spots,total_sections,player)
-                    open_pos = move_list(pos,spots)
-                    player = 2 if player == 1 else 1
-
-    #fill the background color to black so that it will 
-    #refresh what is on the screen
-    screen.fill(BLACK)
-    draw_grid(screen)
-   
-    #indicate where you will be putting your move (yellow mark on screen)
-    for i in open_pos:
-        if (pos[0] == i[0] and pos[1] == i[1] ):
-            pygame.draw.rect(screen,(255,255,152),
-                pygame.Rect(30 + (screen.get_width() - 40)/9 * pos[0],
-                30 + (screen.get_height() - 40)/9 * pos[1],
-                (screen.get_width() - 40)/12,(screen.get_height() - 40)/12))
+    # This sets the name of the window
+    pygame.display.set_caption('Ultimate tic-tac-toe')
+     
+    clock = pygame.time.Clock()
+     
+    # Before the loop, load the sounds:
+    # click_sound = pygame.mixer.Sound("01. La La Land.ogg")
+     
+    # Set positions of graphics
+    #background_position = [0, 0]
+     
+     
+    done = False
+    pos = [0,0]
+    #x is 1 o is 2
+    randomplayer = False
+    player = 1;
+    if ((mode == 2 and random.randint(0,1) == 0) or mode == 3):
+        randomplayer = True
+    while not done:
+        mouse_position = pygame.mouse.get_pos()
+        pos[0] = math.floor((mouse_position[0] - 20)/((screen.get_width() - 40)/9))
+        pos[1] = math.floor((mouse_position[1] - 20)/((screen.get_height() - 40)/9))
+        if(not randomplayer):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    #check if the mouse click was on a valid spot
+                    #if it was place players mark and check for a win
+                    for i in open_pos:
+                        if (pos[0] == i[0] and pos[1] == i[1] ):
+                            x = int(pos[0]/3 + math.floor(pos[1]/3)*3)
+                            y = int(pos[0]%3 + (pos[1]%3)*3)
+                            spots[x][y] = player
+                            #check if the move caused the player to win a section 
+                            #if the move won the whole game done will become true
+                            done =  check_win_sect(x,spots,total_sections,player)
+                            open_pos = move_list(pos,spots)
+                            if(len(open_pos) == 0 and  not done):
+                                print("Tie")
+                                done = True
+                            if(mode == 2):
+                                randomplayer = (not randomplayer)
+                            player = 2 if player == 1 else 1
         else:
-            pygame.draw.rect(screen,(55,55,55),
-                pygame.Rect(30 + (screen.get_width() - 40)/9 * i[0],
-                30 + (screen.get_height() - 40)/9 * i[1],
-                (screen.get_width() - 40)/12,(screen.get_height() - 40)/12))
-    draw_x_o(screen,spots)
-    # Copy image to screen:
-    #screen.blit(player_image, [x, y])
-   
-    pygame.display.flip()
- 
-    clock.tick(60)
- 
-pygame.quit()
+            move = random.randint(0,len(open_pos)-1)
+            pos = open_pos[move]
+            x = int(pos[0]/3 + math.floor(pos[1]/3)*3)
+            y = int(pos[0]%3 + (pos[1]%3)*3)
+            spots[x][y] = player
+            #check if the move caused the player to win a section 
+            #if the move won the whole game done will become true
+            done =  check_win_sect(x,spots,total_sections,player)
+            open_pos = move_list(pos,spots)
+            if(len(open_pos) == 0 and not done):
+                print("Tie")
+                done = True
+            if(mode == 2):
+                randomplayer = (not randomplayer)
+            player = 2 if player == 1 else 1
+
+
+        #fill the background color to black so that it will 
+        #refresh what is on the screen
+        screen.fill(BLACK)
+        draw_grid(screen)
+       
+        #indicate where you will be putting your move (yellow mark on screen)
+        for i in open_pos:
+            if (pos[0] == i[0] and pos[1] == i[1] ):
+                pygame.draw.rect(screen,(255,255,152),
+                    pygame.Rect(30 + (screen.get_width() - 40)/9 * pos[0],
+                    30 + (screen.get_height() - 40)/9 * pos[1],
+                    (screen.get_width() - 40)/12,(screen.get_height() - 40)/12))
+            else:
+                pygame.draw.rect(screen,(55,55,55),
+                    pygame.Rect(30 + (screen.get_width() - 40)/9 * i[0],
+                    30 + (screen.get_height() - 40)/9 * i[1],
+                    (screen.get_width() - 40)/12,(screen.get_height() - 40)/12))
+        draw_x_o(screen,spots)
+        # Copy image to screen:
+        #screen.blit(player_image, [x, y])
+       
+        pygame.display.flip()
+     
+        clock.tick(60)
+     
+    pygame.quit()
+if __name__ == '__main__':
+    string = 'Mode:\n Enter 1 for human vs human'
+    string += '\n Enter 2 for human vs computer '
+    string +='\n Enter 3 for computer vs computer \n'
+    try:
+        mode = int(input(string))
+    except ValueError:
+        print("Entered the Wrong Value please enter 1,2, or 3")
+    main(mode)

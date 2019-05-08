@@ -136,6 +136,11 @@ def main(mode):
         mouse_position = pygame.mouse.get_pos()
         pos[0] = math.floor((mouse_position[0] - 20)/((screen.get_width() - 40)/9))
         pos[1] = math.floor((mouse_position[1] - 20)/((screen.get_height() - 40)/9))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            elif event.type == pygame.KEYDOWN:
+                done = True
         if(not randomplayer):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -159,6 +164,8 @@ def main(mode):
                                 randomplayer = (not randomplayer)
                             player = 2 if player == 1 else 1
         else:
+
+
             move = random.randint(0,len(open_pos)-1)
             pos = open_pos[move]
             x = int(pos[0]/3 + math.floor(pos[1]/3)*3)
@@ -173,6 +180,8 @@ def main(mode):
                 done = True
             if(mode == 2):
                 randomplayer = (not randomplayer)
+            for i in range(10000000):
+                x = i+1
             player = 2 if player == 1 else 1
 
 

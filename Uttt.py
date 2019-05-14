@@ -103,6 +103,7 @@ def main(mode):
 
     # Call this function so the Pygame library can initialize itself
     pygame.init()
+    pygame.mixer.quit()
     prev_move = [-1,-1]
     spots = [[0 for x in range(9)] for x in range(9)]
     total_sections = [0 for x in range(9)]

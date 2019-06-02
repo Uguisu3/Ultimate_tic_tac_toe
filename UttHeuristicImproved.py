@@ -5,6 +5,37 @@ import copy
 
 
 # Used to draw the grid on the screen
+class Node:
+    def __init__ (self,children,board,move,score):
+        self.children = children
+        self.board = board
+        self.move = move
+        self.score = score
+
+    def add_Node(self,node):
+        self.children.append (node)
+
+    #def get_score(self)
+    #    return self.score
+
+
+def build_tree(depth, node,player,total_sections):
+    if(depth == 0):
+        return node
+    pmoves = move_list(node.move,node.board)
+    subtree = node
+    for i in range (len(pmoves)):
+        score = node.score + heuristic_function(pmove[i],boardstate,player,total_sections)* (1 if player == 1 else -1)
+        boardstate = node.board
+        boardstate[pmove[i][0]][pmove[i][1]]= player
+        childnode = Node(node,None,boardstate,pmove[i],score)
+        player = 2 if player == 1 else 1
+        check_win_sect(pmove[i][0], boardstate, total_sections, player)
+        inode = build_tree(depth -1, childnode,player,total_sections)
+        subtree.add_Node(inode)
+
+    return subtree
+
 
 def draw_grid(screen):
     linecolor = (255, 255, 255)
@@ -328,8 +359,8 @@ def main(playertype):
     player = 1;
 
     currentplayer = playertype[0];
-    
-
+    root = Node(1,None,player,total_sections)
+    print(root)
 
     while not done:
         mouse_position = pygame.mouse.get_pos()

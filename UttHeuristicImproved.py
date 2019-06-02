@@ -292,7 +292,7 @@ def getHeuristicValNoOptimalMove(currentMove):
         return 1 #is a top/bottom/left/right move
 
 
-def main(mode):
+def main(playertype):
     # Define some colors
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -327,15 +327,16 @@ def main(mode):
     randomplayer = False
     player = 1;
 
-    if ((mode == 2 and random.randint(0, 1) == 0) or mode == 3):
-        randomplayer = True
+    currentplayer = playertype[0];
+    
+
 
     while not done:
         mouse_position = pygame.mouse.get_pos()
         pos[0] = math.floor((mouse_position[0] - 20) / ((screen.get_width() - 40) / 9))
         pos[1] = math.floor((mouse_position[1] - 20) / ((screen.get_height() - 40) / 9))
 
-        if (not randomplayer):
+        if (currentplayer == 1):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
@@ -354,23 +355,29 @@ def main(mode):
                             if (len(open_pos) == 0 and not done):
                                 print("Tie")
                                 done = True
-
-                            if (mode == 2):
-                                randomplayer = (not randomplayer)
-
                             player = 2 if player == 1 else 1
 
-        else:
 
-            if (False):
-                move = random.randint(0, len(open_pos) - 1)
-                pos = open_pos[move]
-                x = int(pos[0] / 3 + math.floor(pos[1] / 3) * 3)
-                y = int(pos[0] % 3 + (pos[1] % 3) * 3)
-                spots[x][y] = player
-                print(open_pos)
-                print(x, y)
-            else: #Intelligent agent code starts here
+        elif(currentplayer == 2):
+            move = random.randint(0, len(open_pos) - 1)
+            pos = open_pos[move]
+            x = int(pos[0] / 3 + math.floor(pos[1] / 3) * 3)
+            y = int(pos[0] % 3 + (pos[1] % 3) * 3)
+            spots[x][y] = player
+            done =  check_win_sect(x,spots,total_sections,player)
+            open_pos = move_list(pos,spots)
+            if(len(open_pos) == 0 and not done):
+                print("Tie")
+                done = True
+            for i in range(1000000):
+                x = i+1
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+                elif event.type == pygame.KEYDOWN:
+                    done = True
+            player = 2 if player == 1 else 1
+        elif (currentplayer == 3): #Intelligent agent code starts here
                 #
                 #foundWin = False
                 #for posMove in open_pos:
@@ -385,30 +392,30 @@ def main(mode):
                 #        foundWin = True
                 #        break
 
-                currentPosValues = []
-                random.shuffle(open_pos)
-                for posMove in open_pos:
-                    currentMoveHeuristic = heuristic_function(posMove, spots, player, total_sections)
-                    currentPosValues.append(currentMoveHeuristic)
+            currentPosValues = []
+            random.shuffle(open_pos)
+            for posMove in open_pos:
+                currentMoveHeuristic = heuristic_function(posMove, spots, player, total_sections)
+                currentPosValues.append(currentMoveHeuristic)
 
-                currentMoveValue = max(currentPosValues) # The max value
-                currentMoveIndex = currentPosValues.index(currentMoveValue) # The index of the max value
-                pos = open_pos[currentMoveIndex] # The move that should be taken
+            currentMoveValue = max(currentPosValues) # The max value
+            currentMoveIndex = currentPosValues.index(currentMoveValue) # The index of the max value
+            pos = open_pos[currentMoveIndex] # The move that should be taken
 
-                #The move is finalized.  Random move if currentMoveValue is zero, or currentMove
-                if(currentMoveValue == 0):
-                #check_win_sect(x, spots, total_sections, player)
-                    move = random.randint(0, len(open_pos) - 1)
-                    pos = open_pos[move]
-                    x = int(pos[0] / 3 + math.floor(pos[1] / 3) * 3)
-                    y = int(pos[0] % 3 + (pos[1] % 3) * 3)
-                    spots[x][y] = player
-                    print(open_pos)
-                    print(x, y)
-                else:
-                    x = int(pos[0] / 3 + math.floor(pos[1] / 3) * 3)
-                    y = int(pos[0] % 3 + (pos[1] % 3) * 3)
-                    spots[x][y] = player
+            #The move is finalized.  Random move if currentMoveValue is zero, or currentMove
+            if(currentMoveValue == 0):
+            #check_win_sect(x, spots, total_sections, player)
+                move = random.randint(0, len(open_pos) - 1)
+                pos = open_pos[move]
+                x = int(pos[0] / 3 + math.floor(pos[1] / 3) * 3)
+                y = int(pos[0] % 3 + (pos[1] % 3) * 3)
+                spots[x][y] = player
+                print(open_pos)
+                print(x, y)
+            else:
+                x = int(pos[0] / 3 + math.floor(pos[1] / 3) * 3)
+                y = int(pos[0] % 3 + (pos[1] % 3) * 3)
+                spots[x][y] = player
 
             # check if the move caused the player to win a section
             # if the move won the whole game done will become true
@@ -422,16 +429,13 @@ def main(mode):
             if (len(open_pos) == 0 and not done):
                 print("Tie")
                 done = True
-
-            if (mode == 2):
-                randomplayer = (not randomplayer)
             for i in range(10000000):
                 x = i + 1
 
             player = 2 if player == 1 else 1
         # fill the background color to black so that it will
         # refresh what is on the screen
-
+        currentplayer = playertype[player -1]
         screen.fill(BLACK)
         draw_grid(screen)
 
@@ -465,18 +469,32 @@ def main(mode):
 
 if __name__ == '__main__':
 
-    string = 'Mode:\n Enter 1 for human vs human'
+    string = 'Player1:\n Enter 1 for human'
 
-    string += '\n Enter 2 for human vs computer '
+    string += '\n Enter 2 for random computer'
 
-    string += '\n Enter 3 for computer vs computer \n'
+    string += '\n Enter 3 for Intelligent computer\n'
 
     try:
 
-        mode = int(input(string))
+        player1 = int(input(string))
 
     except ValueError:
 
         print("Entered the Wrong Value please enter 1,2, or 3")
 
-    main(mode)
+    string = 'Player2:\n Enter 1 for human'
+
+    string += '\n Enter 2 for random computer'
+
+    string += '\n Enter 3 for Intelligent computer\n'
+
+    try:
+
+        player2 = int(input(string))
+
+    except ValueError:
+
+        print("Entered the Wrong Value please enter 1,2, or 3")
+    playertype = [player1, player2]
+    main(playertype)

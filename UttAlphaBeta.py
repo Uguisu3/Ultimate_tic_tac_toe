@@ -2,6 +2,7 @@ import pygame
 import math
 import random
 import copy
+import time
 
 class TreeNode:
     def __init__(self, heuristicVal, player, spotsTemp, totalSectionsTemp, prevMove = None):
@@ -14,9 +15,6 @@ class TreeNode:
         self.prevMove = prevMove
 
 
-#currentNode = TreeNode(0, player, spotsTemp, totalSectionsTemp)
-#miniMaxTree = miniMax(currentNode, 3, true, open_pos)
-
 def miniMax(currentNode, depth, maximizingPlayer, posMoves, alpha, beta):
     if((depth == 0) or check_win(currentNode.totalSectionsTemp, 1) or check_win(currentNode.totalSectionsTemp, 2)):
         currentNode.minMaxVal = currentNode.heuristicVal
@@ -27,7 +25,7 @@ def miniMax(currentNode, depth, maximizingPlayer, posMoves, alpha, beta):
         currentMoveHeuristic = heuristic_function(pos, currentNode.spotsTemp, currentNode.player, currentNode.totalSectionsTemp)
         if(maximizingPlayer == False):
             currentMoveHeuristic = currentMoveHeuristic * -1
-        currentMoveHeuristic += currentNode.heuristicVal
+        currentMoveHeuristic += (currentNode.heuristicVal)
 
         x = int(pos[0] / 3 + math.floor(pos[1] / 3) * 3)
         y = int(pos[0] % 3 + (pos[1] % 3) * 3)
@@ -43,7 +41,7 @@ def miniMax(currentNode, depth, maximizingPlayer, posMoves, alpha, beta):
             newPlayer = 2
 
         currentNode.children.append(TreeNode(currentMoveHeuristic, newPlayer, spotsTempCopy, totalSectionsTempCopy, pos))
-    ######move_list(pmove, spots)
+    #move_list(pmove, spots) is used to get the next set of open possible moves (open_pos)
     if(maximizingPlayer):
         maxEval = -10000000000
         for child in currentNode.children:
@@ -115,7 +113,7 @@ def draw_grid(screen):
                           (20 + (screen.get_height() - 40) / 9 * i)), linewidth)
 
 
-# given the move and a list of each spots state return the move list
+# given the previous move and the game state return the move list (possible next moves)
 
 def move_list(pmove, spots):
     possible_moves = []
@@ -187,7 +185,6 @@ def check_win(section, player):
 
 
 # given the move and a list of each spots check if the move caused a section to
-
 # win
 
 def check_win_sect(section, spots, total_sections,
@@ -443,8 +440,10 @@ def main(playertype):
             if (len(open_pos) == 0 and not done):
                 print("Tie")
                 done = True
-            for i in range(10000000):
-                x = i + 1
+            time.sleep(1)
+            #loop below for testing purposes
+            #for i in range(10000000):
+            #    x = i + 1
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
@@ -452,19 +451,6 @@ def main(playertype):
                     done = True
             player = 2 if player == 1 else 1
         elif (currentplayer == 3):  # Intelligent agent code starts here
-            #
-            # foundWin = False
-            # for posMove in open_pos:
-            #    xTemp = int(posMove[0] / 3 + math.floor(posMove[1] / 3) * 3)
-            #    yTemp = int(posMove[0] % 3 + (posMove[1] % 3) * 3)
-            #    spotsTemp = copy.deepcopy(spots)
-            #    spotsTemp[xTemp][yTemp] = player
-            #    if(check_win_sect(xTemp, spotsTemp, total_sections, player)):
-            #        x = int(posMove[0] / 3 + math.floor(posMove[1] / 3) * 3)
-            #        y = int(posMove[0] % 3 + (posMove[1] % 3) * 3)
-            #        spots[x][y] = player
-            #        foundWin = True
-            #        break
 
             #Now we have open_pos (all possible moves) currently
 
@@ -485,16 +471,6 @@ def main(playertype):
                 currentMoveValue = 1 # flag for now.  Do not choose a random move
             else:
                 currentMoveValue = 0
-
-            #currentPosValues = []
-            #random.shuffle(open_pos)
-            #for posMove in open_pos:
-            #    currentMoveHeuristic = heuristic_function(posMove, spots, player, total_sections)
-            #    currentPosValues.append(currentMoveHeuristic)
-
-            #currentMoveValue = max(currentPosValues)  # The max value
-            #currentMoveIndex = currentPosValues.index(currentMoveValue)  # The index of the max value
-            #pos = open_pos[currentMoveIndex]  # The move that should be taken
 
             # The move is finalized.  Random move if currentMoveValue is zero, or currentMove
             if (currentMoveValue == 0):
@@ -523,8 +499,7 @@ def main(playertype):
             if (len(open_pos) == 0 and not done):
                 print("Tie")
                 done = True
-            for i in range(10000000):
-                x = i + 1
+            time.sleep(1)
 
             player = 2 if player == 1 else 1
         # fill the background color to black so that it will
@@ -558,6 +533,7 @@ def main(playertype):
 
         clock.tick(60)
 
+    time.sleep(3)
     pygame.quit()
 
 
